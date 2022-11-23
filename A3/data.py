@@ -11,11 +11,14 @@ from torchvision.models import ResNet50_Weights
 #data_transforms = ResNet50_Weights.IMAGENET1K_V2.transforms
 
 data_transforms = transforms.Compose([
+    transforms.RandomRotation(30),
+    transforms.GaussianBlur(5, sigma=(0.1, 2.0)),
     transforms.Resize((232, 232)),
     transforms.CenterCrop((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
+                                 std=[0.229, 0.224, 0.225]),
+    transforms.randomHorizontalFlip(0.5),
 ])
 
 
