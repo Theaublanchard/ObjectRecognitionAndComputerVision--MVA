@@ -27,14 +27,14 @@ class EndModel(nn.Module):
 
     def __init__(self,in_features,out_features):
         super(EndModel,self).__init__()
-        self.fc1 = nn.Linear(in_features, nclasses)
-        #self.fc2 = nn.Linear(256, out_features)
+        self.fc1 = nn.Linear(in_features, 256)
+        self.fc2 = nn.Linear(256, out_features)
 
         
     def forward(self,x):
         x = F.relu(self.fc1(x))
-        return x
-        #return self.fc2(x)
+        #return x
+        return self.fc2(x)
 
 
 class Net(nn.Module):
@@ -47,10 +47,10 @@ class Net(nn.Module):
         self.endmodel = EndModel(self.num_ftrs,nclasses)
 
         # freeze the resnet layers
-        for param in self.resnet.parameters():
-            param.requires_grad = True
+        #for param in self.resnet.parameters():
+        #    param.requires_grad = True
             
 
     def forward(self,x):
         x = self.resnet(x)
-        return x
+        return self.endmodel(x)

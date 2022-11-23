@@ -14,6 +14,8 @@ parser.add_argument('--model', type=str, metavar='M',
                     help="the model file to be evaluated. Usually it is of the form model_X.pth")
 parser.add_argument('--outfile', type=str, default='experiment/kaggle.csv', metavar='D',
                     help="name of the output csv file")
+parser.add_argument('--allow-cuda',type=bool,default=True,metavar='C',
+                    help="allow for the use of gpu")
 
 args = parser.parse_args()
 use_cuda = torch.cuda.is_available()
@@ -22,7 +24,7 @@ state_dict = torch.load(args.model)
 model = Net()
 model.load_state_dict(state_dict)
 model.eval()
-if use_cuda:
+if use_cuda and args.allow_cuda:
     print('Using GPU')
     model.cuda()
 else:

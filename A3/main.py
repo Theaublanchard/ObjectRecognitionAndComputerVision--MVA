@@ -55,7 +55,7 @@ model = Net()
 
 # freeze the resnet layers
 for param in model.resnet.parameters():
-            param.requires_grad = True
+            param.requires_grad = False
 
 if use_cuda:
     print('Using GPU')
@@ -64,10 +64,13 @@ else:
     print('Using CPU')
 
 #optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
-optimizer = optim.Adam(model.parameters(), lr=args.lr)
+optimizer = optim.Adam(model.parameters(), lr=args.lr,)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True)
+
 
 def train(epoch):
     model.train()
+    total_loss_epoch = 0
     for batch_idx, (data, target) in enumerate(train_loader):
         if use_cuda:
             data, target = data.cuda(), target.cuda()
@@ -77,11 +80,14 @@ def train(epoch):
         loss = criterion(output, target)
         loss.backward()
         optimizer.step()
+        total_loss_epoch += loss.data.item()
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.data.item()))
-    return loss.data.item()
+    print('Training set:   Average loss: {:.4f}'.format(
+        total_loss_epoch/len(train_loader.dataset)))
+    return total_loss_epoch/len(train_loader.dataset)
 
 def validation():
     model.eval()
@@ -99,7 +105,7 @@ def validation():
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     validation_loss /= len(val_loader.dataset)
-    print('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+    print('Validation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         validation_loss, correct, len(val_loader.dataset),
         100. * correct / len(val_loader.dataset)))
     return validation_loss, (100. * correct / len(val_loader.dataset)).data.item()
@@ -110,6 +116,7 @@ train_loss_tab = pd.DataFrame(columns=['epoch', 'train_loss','val_loss','val_acc
 for epoch in range(1, args.epochs + 1):
     train_loss = train(epoch)
     val_loss, val_acc = validation()
+    scheduler.step(val_loss)
     train_loss_tab = pd.concat([train_loss_tab,pd.DataFrame.from_dict({'epoch': [epoch], 'train_loss': [train_loss], 'val_loss': [val_loss],'val_acc':[val_acc]})], ignore_index=True)
     if epoch % args.save_interval == 0 or epoch == args.epochs:
         model_file = args.experiment + '/model_' + str(epoch) + '.pth'
