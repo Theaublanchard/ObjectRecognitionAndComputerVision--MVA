@@ -65,7 +65,7 @@ else:
 
 #optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 optimizer = optim.Adam(model.parameters(), lr=args.lr,)
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True,patience=5)
 
 
 def train(epoch):
