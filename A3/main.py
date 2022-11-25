@@ -38,15 +38,15 @@ if not os.path.isdir(args.experiment):
     os.makedirs(args.experiment)
 
 # Data initialization and loading
-from data import data_transforms
+from data import train_data_transforms, val_data_transforms
 
 train_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/train_images',
-                         transform=data_transforms),
+                         transform=train_data_transforms),
     batch_size=args.batch_size, shuffle=True, num_workers=0)
 val_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/val_images',
-                         transform=data_transforms),
+                         transform=val_data_transforms),
     batch_size=args.batch_size, shuffle=False, num_workers=0)
 
 # Neural network and optimizer

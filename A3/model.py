@@ -69,6 +69,8 @@ class Net(nn.Module):
             param.requires_grad = False
 
         # Unfreeze the last two layers
+        #for p in self.resnet.layer4[1].parameters():
+        #    p.requires_grad = True
         for p in self.resnet.layer4[2].parameters():
             p.requires_grad = True
         for p in self.resnet.fc.parameters():
