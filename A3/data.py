@@ -56,10 +56,10 @@ data_transforms = transforms.Compose([
     transforms.ToTensor(),
 
     # Detect the bird and crop it
-    CropBird(device),
+    #CropBird(device),
 
     # properly crop the data to avoid stretching
-    #CenterCropMainAxis(),
+    CenterCropMainAxis(),
 
     # Res net transforms
     transforms.Resize((232, 232)),

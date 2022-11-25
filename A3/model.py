@@ -27,15 +27,33 @@ class EndModel(nn.Module):
 
     def __init__(self,in_features,out_features):
         super(EndModel,self).__init__()
-        self.fc1 = nn.Linear(in_features, 256)
-        self.fc2 = nn.Linear(256, out_features)
+        self.fc1 = nn.Linear(in_features, out_features)
+        #self.fc2 = nn.Linear(256, out_features)
 
         
     def forward(self,x):
         x = F.relu(self.fc1(x))
-        #return x
-        return self.fc2(x)
+        return x
+        #return self.fc2(x)
 
+
+# class Net(nn.Module):
+
+#     def __init__(self,):
+#         super(Net,self).__init__()
+
+#         self.resnet = torchvision.models.resnet50(weights="ResNet50_Weights.IMAGENET1K_V2")
+#         self.num_ftrs = self.resnet.fc.out_features
+#         self.endmodel = EndModel(self.num_ftrs,nclasses)
+
+#         # freeze the resnet layers
+#         #for param in self.resnet.parameters():
+#         #    param.requires_grad = True
+            
+
+#     def forward(self,x):
+#         x = self.resnet(x)
+#         return self.endmodel(x)
 
 class Net(nn.Module):
 
@@ -43,14 +61,19 @@ class Net(nn.Module):
         super(Net,self).__init__()
 
         self.resnet = torchvision.models.resnet50(weights="ResNet50_Weights.IMAGENET1K_V2")
-        self.num_ftrs = self.resnet.fc.out_features
-        self.endmodel = EndModel(self.num_ftrs,nclasses)
+        self.in_ftrs = self.resnet.fc.in_features
+        self.resnet.fc = nn.Linear(self.in_ftrs, nclasses)  
 
-        # freeze the resnet layers
-        #for param in self.resnet.parameters():
-        #    param.requires_grad = True
-            
+        # Freeze all resnet layers except the last two layers
+        for param in self.resnet.parameters():
+            param.requires_grad = False
+
+        # Unfreeze the last two layers
+        for p in self.resnet.layer4[2].parameters():
+            p.requires_grad = True
+        for p in self.resnet.fc.parameters():
+            p.requires_grad = True
 
     def forward(self,x):
         x = self.resnet(x)
-        return self.endmodel(x)
+        return x
