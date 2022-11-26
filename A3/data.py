@@ -70,33 +70,29 @@ train_data_transforms = transforms.Compose([
     transforms.ToTensor(),
 
     # Detect the bird and crop it
-    CropBird(device,0.3),
-
-    # properly crop the data to avoid stretching
-    #CenterCropMainAxis(),
-
-    # Res net transforms
-    transforms.Resize((232, 232)),
-    transforms.CenterCrop((224, 224)),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225]),
-])
-
-val_data_transforms = transforms.Compose([
-    transforms.ToTensor(),
-    # Detect the bird and crop it
-    CropBird(device,0.3),
+    #CropBird(device,0.3),
 
     # properly crop the data to avoid stretching
     CenterCropMainAxis(),
 
     # Res net transforms
-    transforms.Resize((232, 232)),
+    # transforms.Resize((512, 512)),
+    transforms.CenterCrop((224, 224)),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                std=[0.229, 0.224, 0.225]),
+])
+
+val_data_transforms = transforms.Compose([
+    transforms.ToTensor(),
+    # Detect the bird and crop it
+    #CropBird(device,0.3),
+
+    # properly crop the data to avoid stretching
+    CenterCropMainAxis(),
+
+    # Res net transforms
+    #transforms.Resize((512, 512)),
     transforms.CenterCrop((224, 224)),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225]),
 ])
-
-
-
-

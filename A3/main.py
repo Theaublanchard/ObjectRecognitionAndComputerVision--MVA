@@ -68,6 +68,7 @@ scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,verbose=True,pa
 
 def train(epoch):
     model.train()
+    #model.rcnn.eval()
     total_loss_epoch = 0
     for batch_idx, (data, target) in enumerate(train_loader):
         if use_cuda:
