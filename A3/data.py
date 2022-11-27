@@ -63,23 +63,30 @@ class CropBird:
 
 
 train_data_transforms = transforms.Compose([
+
+
+    # Try the AugMix
+    transforms.AugMix(),
+    
     # data augmentation
     transforms.RandomRotation(30),
     transforms.GaussianBlur(3, sigma=(0.01, 2.0)),
     transforms.RandomHorizontalFlip(0.5),
-    transforms.ToTensor(),
+    transforms.ToTensor(), 
 
-    # Detect the bird and crop it
-    #CropBird(device,0.3),
+
 
     # properly crop the data to avoid stretching
     CenterCropMainAxis(),
 
+    # Detect the bird and crop it
+    #CropBird('cpu',0.3),
+    
     # Res net transforms
-    # transforms.Resize((512, 512)),
+    transforms.Resize((232, 232)),
     transforms.CenterCrop((224, 224)),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                std=[0.229, 0.224, 0.225]),
+                                 std=[0.229, 0.224, 0.225]),
 ])
 
 val_data_transforms = transforms.Compose([
@@ -91,7 +98,7 @@ val_data_transforms = transforms.Compose([
     CenterCropMainAxis(),
 
     # Res net transforms
-    #transforms.Resize((512, 512)),
+    transforms.Resize((232, 232)),
     transforms.CenterCrop((224, 224)),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225]),
