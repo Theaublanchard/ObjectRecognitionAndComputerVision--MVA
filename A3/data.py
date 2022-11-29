@@ -4,28 +4,10 @@ import os
 import torch
 import torchvision.transforms as transforms
 from torchvision.models import ResNet50_Weights, detection
-# once the images are loaded, how do we pre-process them before being passed into the network
-# by default, we resize the images to 64 x 64 in size
-# and normalize them to mean = 0 and standard-deviation = 1 based on statistics collected from
-# the training set
 
-#data_transforms = ResNet50_Weights.IMAGENET1K_V2.transforms
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-class CenterCropMainAxis:
-    """Center crop the image on the smallest axis. Basicaly extract the center square."""
-    def __init__(self) -> None:
-        pass
-
-    def __call__(self, image):
-        if image.shape[-1] > image.shape[-2]:
-            res = transforms.CenterCrop((image.shape[-2], image.shape[-2]))(image)
-        else:
-            res = transforms.CenterCrop((image.shape[-1], image.shape[-1]))(image)
-        return res
         
-
 class CropBird:
     """Retrieve the a bounding box of a bird in the image. Extend it by a percentage tol. Then
        crops the image in a square given by the longest axis of the bb."""
@@ -38,6 +20,8 @@ class CropBird:
         self.tolerance = tolerance    
 
     def __call__(self, x):
+        """Retrieve a bounding box of a bird in the image. Extend it by a percentage tol. Then
+       crops the image in a square given by the longest axis of the bounding box."""
         # bounding box detection
         with torch.no_grad():
             pred = self.rcnn.to(self.device)(x[None,:].to(self.device))[0]
@@ -68,20 +52,15 @@ train_data_transforms = transforms.Compose([
     #Detect the bird and crop it
     CropBird(device,0.3),
 
-    # Try the AugMix
+    # AugMix
     transforms.ToPILImage(),
     transforms.AugMix(),
     
-    # data augmentation
+    # Classic data augmentation
     transforms.RandomRotation(30),
     transforms.GaussianBlur(3, sigma=(0.01, 2.0)),
     transforms.RandomHorizontalFlip(0.5),
     transforms.ToTensor(), 
-
-
-
-    # properly crop the data to avoid stretching
-    #CenterCropMainAxis(),
 
     # Res net transforms
     transforms.Resize((232, 232)),
@@ -92,11 +71,9 @@ train_data_transforms = transforms.Compose([
 
 val_data_transforms = transforms.Compose([
     transforms.ToTensor(),
+
     # Detect the bird and crop it
     CropBird(device,0.3),
-
-    # properly crop the data to avoid stretching
-    #CenterCropMainAxis(),
 
     # Res net transforms
     transforms.Resize((232, 232)),
